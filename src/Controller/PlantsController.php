@@ -10,11 +10,6 @@ namespace App\Controller;
  */
 class PlantsController extends AppController
 {
-    /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
     public function index()
     {
         $query = $this->Plants->find();
@@ -23,32 +18,30 @@ class PlantsController extends AppController
         $this->set(compact('plants'));
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id Plant id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function view($id = null)
     {
-        $plant = $this->Plants->get($id, contain: []);
+        $plant = $this->Plants->get($id);
         $this->set(compact('plant'));
     }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
-     */
     public function add()
     {
         $plant = $this->Plants->newEmptyEntity();
         if ($this->request->is('post')) {
             $plant = $this->Plants->patchEntity($plant, $this->request->getData());
+
+            // Upload da imagem
+            $imageFile = $this->request->getData('image_file');
+            if (!empty($imageFile) && $imageFile->getError() === 0) {
+                $name = time() . '_' . $imageFile->getClientFilename();  // evita conflitos
+                $targetPath = WWW_ROOT . 'img' . DS . 'plants' . DS . $name;
+
+                $imageFile->moveTo($targetPath);
+                $plant->image = 'plants/' . $name;  // salva caminho relativo
+            }
+
             if ($this->Plants->save($plant)) {
                 $this->Flash->success(__('The plant has been saved.'));
-
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The plant could not be saved. Please, try again.'));
@@ -56,21 +49,24 @@ class PlantsController extends AppController
         $this->set(compact('plant'));
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Plant id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function edit($id = null)
     {
-        $plant = $this->Plants->get($id, contain: []);
+        $plant = $this->Plants->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $plant = $this->Plants->patchEntity($plant, $this->request->getData());
+
+            // Upload da imagem
+            $imageFile = $this->request->getData('image_file');
+            if (!empty($imageFile) && $imageFile->getError() === 0) {
+                $name = time() . '_' . $imageFile->getClientFilename();
+                $targetPath = WWW_ROOT . 'img' . DS . 'plants' . DS . $name;
+
+                $imageFile->moveTo($targetPath);
+                $plant->image = 'plants/' . $name;
+            }
+
             if ($this->Plants->save($plant)) {
                 $this->Flash->success(__('The plant has been saved.'));
-
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The plant could not be saved. Please, try again.'));
@@ -78,13 +74,6 @@ class PlantsController extends AppController
         $this->set(compact('plant'));
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Plant id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
@@ -94,7 +83,7 @@ class PlantsController extends AppController
         } else {
             $this->Flash->error(__('The plant could not be deleted. Please, try again.'));
         }
-
         return $this->redirect(['action' => 'index']);
     }
 }
+

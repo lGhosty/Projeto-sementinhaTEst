@@ -18,7 +18,7 @@
     </aside>
     <div class="column column-80">
         <div class="plants form content">
-            <?= $this->Form->create($plant) ?>
+            <?= $this->Form->create($plant, ['type' => 'file']) ?>
             <fieldset>
                 <legend><?= __('Edit Plant') ?></legend>
                 <?php
@@ -26,7 +26,21 @@
                     echo $this->Form->control('description');
                     echo $this->Form->control('price');
                     echo $this->Form->control('stock');
-                    echo $this->Form->control('image');
+                    echo $this->Form->control('image_file', ['type' => 'file', 'label' => 'Imagem da Planta']);
+
+                    // Dentro do método edit(), logo após pegar a imagem:
+                    $imageFile = $this->request->getData('image_file');
+                    if (!empty($imageFile) && $imageFile->getError() === 0) {
+                        // salvar nova imagem
+                        $name = time() . '_' . $imageFile->getClientFilename();
+                        $targetPath = WWW_ROOT . 'img' . DS . 'plants' . DS . $name;
+                        $imageFile->moveTo($targetPath);
+                        $plant->image = 'plants/' . $name;
+                        } else {
+                       // manter a imagem antiga
+                        unset($plant->image);
+                    }
+
                 ?>
             </fieldset>
             <?= $this->Form->button(__('Submit')) ?>

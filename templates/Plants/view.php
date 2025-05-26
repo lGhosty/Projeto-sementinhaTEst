@@ -24,7 +24,9 @@
                 </tr>
                 <tr>
                     <th><?= __('Image') ?></th>
-                    <td><?= h($plant->image) ?></td>
+                    <td><?php if (!empty($plant->image)): ?>
+                        <img src="<?= $this->Html->image('plants/' . h($plant->image), ['alt' => h($plant->nome)]) ?>" style="max-width:200px;">
+                            <?php endif; ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Id') ?></th>

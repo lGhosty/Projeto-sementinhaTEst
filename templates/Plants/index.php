@@ -28,7 +28,10 @@
                     <td><?= h($plant->nome) ?></td>
                     <td><?= $this->Number->format($plant->price) ?></td>
                     <td><?= $plant->stock === null ? '' : $this->Number->format($plant->stock) ?></td>
-                    <td><?= h($plant->image) ?></td>
+                    <td><?php if (!empty($plant->image)): ?>
+                            <?= $this->Html->image($plant->image, ['style' => 'width: 60px;']) ?>
+                        <?php endif; ?>
+                    </td>
                     <td><?= h($plant->created) ?></td>
                     <td><?= h($plant->modified) ?></td>
                     <td class="actions">
