@@ -3,25 +3,30 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+
 class CartItemsController extends AppController
 {
     public function index()
     {
-        $query = $this->CartItems->find()->contain(['Plants']);
-        $cartItems = $this->paginate($query);
-        $this->set(compact('cartItems'));
+        $plantsTable = TableRegistry::getTableLocator()->get('Plants');
+        $plants = $plantsTable->find('all')->toArray();
+
+        $cartItems = $this->CartItems->find('all', [
+            'contain' => ['Plants']
+        ])->toArray();
+
+        $this->set(compact('plants', 'cartItems'));
     }
 
     public function checkout()
     {
         $this->request->allowMethod(['post']);
 
-        // Apaga todos os itens do carrinho
         $this->CartItems->deleteAll([]);
-
         $this->Flash->success('Compra confirmada com sucesso!');
 
-        // Redireciona para a página principal (ou altere se necessário)
         return $this->redirect(['controller' => 'Plataforma', 'action' => 'index']);
     }
 
@@ -29,7 +34,16 @@ class CartItemsController extends AppController
     {
         $this->request->allowMethod(['post', 'get']);
 
-        $plant = $this->CartItems->Plants->get($plantId);
+        $plantsTable = TableRegistry::getTableLocator()->get('Plants');
+        $plant = $plantsTable->get($plantId);
+
+        $existingItem = $this->CartItems->find()
+            ->where(['plant_id' => $plantId])
+            ->first();
+
+        if ($existingItem) {
+            return $this->redirect(['action' => 'increase', $existingItem->id]);
+        }
 
         $cartItem = $this->CartItems->newEmptyEntity();
         $cartItem->plant_id = $plant->id;
@@ -37,7 +51,7 @@ class CartItemsController extends AppController
 
         if ($this->CartItems->save($cartItem)) {
             $plant->stock -= 1;
-            $this->CartItems->Plants->save($plant);
+            $plantsTable->save($plant);
 
             $this->Flash->success(__('Planta adicionada ao carrinho com sucesso!'));
         } else {
@@ -47,30 +61,85 @@ class CartItemsController extends AppController
         return $this->redirect($this->referer());
     }
 
+    public function increase($id = null)
+    {
+        $plantsTable = TableRegistry::getTableLocator()->get('Plants');
+
+        $cartItem = $this->CartItems->get($id, ['contain' => ['Plants']]);
+        $plant = $cartItem->plant;
+
+        if ($plant->stock > 0) {
+            $cartItem->quantity += 1;
+            if ($this->CartItems->save($cartItem)) {
+                $plant->stock -= 1;
+                $plantsTable->save($plant);
+            }
+        } else {
+            $this->Flash->error('Estoque insuficiente para adicionar mais desta planta.');
+        }
+
+        return $this->redirect($this->referer());
+    }
+
+    public function decrease($id = null)
+    {
+        $plantsTable = TableRegistry::getTableLocator()->get('Plants');
+
+        $cartItem = $this->CartItems->get($id, ['contain' => ['Plants']]);
+        $plant = $cartItem->plant;
+
+        if ($cartItem->quantity > 1) {
+            $cartItem->quantity -= 1;
+            if ($this->CartItems->save($cartItem)) {
+                $plant->stock += 1;
+                $plantsTable->save($plant);
+            }
+        } else {
+            if ($this->CartItems->delete($cartItem)) {
+                $plant->stock += 1;
+                $plantsTable->save($plant);
+            }
+        }
+
+        return $this->redirect($this->referer());
+    }
+
     public function edit($id = null)
     {
+        $plantsTable = TableRegistry::getTableLocator()->get('Plants');
+
         $cartItem = $this->CartItems->get($id, ['contain' => []]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $cartItem = $this->CartItems->patchEntity($cartItem, $this->request->getData());
             if ($this->CartItems->save($cartItem)) {
-                $this->Flash->success(__('The cart item has been saved.'));
+                $this->Flash->success(__('O item do carrinho foi salvo.'));
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The cart item could not be saved. Please, try again.'));
+            $this->Flash->error(__('Não foi possível salvar o item do carrinho. Tente novamente.'));
         }
-        $plants = $this->CartItems->Plants->find('list', ['limit' => 200]);
+
+        $plants = $plantsTable->find('list', ['limit' => 200]);
         $this->set(compact('cartItem', 'plants'));
     }
 
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $cartItem = $this->CartItems->get($id);
+
+        $plantsTable = TableRegistry::getTableLocator()->get('Plants');
+
+        $cartItem = $this->CartItems->get($id, ['contain' => ['Plants']]);
+        $plant = $cartItem->plant;
+
         if ($this->CartItems->delete($cartItem)) {
-            $this->Flash->success(__('The cart item has been deleted.'));
+            $plant->stock += $cartItem->quantity;
+            $plantsTable->save($plant);
+
+            $this->Flash->success(__('Item removido do carrinho.'));
         } else {
-            $this->Flash->error(__('The cart item could not be deleted. Please, try again.'));
+            $this->Flash->error(__('Não foi possível remover o item do carrinho.'));
         }
-        return $this->redirect(['action' => 'index']);
+
+        return $this->redirect($this->referer());
     }
 }

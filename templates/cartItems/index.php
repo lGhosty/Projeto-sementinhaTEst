@@ -9,7 +9,7 @@
 
     <?php foreach ($cartItems as $item): ?>
         <tr>
-            <td><?= h($item->plant->name) ?></td>
+            <td><?= h($item->plant->nome) ?></td>
             <td><?= h($item->quantity) ?></td>
             <td>
                 <?= $this->Form->postLink('Remover', ['action' => 'delete', $item->id], ['confirm' => 'Tem certeza?']) ?>
