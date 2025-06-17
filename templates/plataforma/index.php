@@ -8,10 +8,10 @@
             <div style="width: 230px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; box-shadow: 2px 2px 6px rgba(0,0,0,0.1); background: #fff;">
                 <div class="plant-card">
                     <?php if (!empty($plant->image)): ?>
-                        <?= $this->Html->image($plant->image, ['alt' => $plant->nome, 'style' => 'max-width: 200px; height: auto; border-radius: 5px;']) ?>
+                        <?= $this->Html->image($plant->image, ['alt' => $plant->name, 'style' => 'max-width: 200px; height: auto; border-radius: 5px;']) ?>
                     <?php endif; ?>
 
-                    <h3><?= h($plant->nome) ?></h3>
+                    <h3><?= h($plant->name) ?></h3>
                     <p><?= h($plant->description) ?></p>
                     <p><strong>Preço:</strong> R$ <?= number_format($plant->price, 2, ',', '.') ?></p>
                     <p><strong>Estoque:</strong> <?= $plant->stock ?></p>
@@ -51,7 +51,7 @@
                     $total += $subtotal;
                 ?>
                     <tr style="border-bottom: 1px solid #ddd;">
-                        <td style="padding: 8px;"><?= h($item->plant->nome) ?></td>
+                        <td style="padding: 8px;"><?= h($item->plant->name) ?></td>
                         <td style="padding: 8px; text-align: right;">R$ <?= number_format($item->plant->price, 2, ',', '.') ?></td>
                         <td style="padding: 8px; text-align: center;"><?= $item->quantity ?></td>
                         <td style="padding: 8px; text-align: right;">R$ <?= number_format($subtotal, 2, ',', '.') ?></td>

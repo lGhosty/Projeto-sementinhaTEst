@@ -16,16 +16,16 @@
     </aside>
     <div class="column column-80">
         <div class="plants view content">
-            <h3><?= h($plant->nome) ?></h3>
+            <h3><?= h($plant->name) ?></h3>
             <table>
                 <tr>
-                    <th><?= __('Nome') ?></th>
-                    <td><?= h($plant->nome) ?></td>
+                    <th><?= __('name') ?></th>
+                    <td><?= h($plant->name) ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Image') ?></th>
                     <td><?php if (!empty($plant->image)): ?>
-                        <img src="<?= $this->Html->image('plants/' . h($plant->image), ['alt' => h($plant->nome)]) ?>" style="max-width:200px;">
+                        <img src="<?= $this->Html->image('plants/' . h($plant->image), ['alt' => h($plant->name)]) ?>" style="max-width:200px;">
                             <?php endif; ?></td>
                 </tr>
                 <tr>

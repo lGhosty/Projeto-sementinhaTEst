@@ -9,7 +9,7 @@ use Cake\ORM\Entity;
  * Plant Entity
  *
  * @property int $id
- * @property string $nome
+ * @property string $name
  * @property string|null $description
  * @property string $price
  * @property int|null $stock
@@ -29,7 +29,7 @@ class Plant extends Entity
      * @var array<string, bool>
      */
     protected array $_accessible = [
-        'nome' => true,
+        'name' => true,
         'description' => true,
         'price' => true,
         'stock' => true,

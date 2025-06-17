@@ -12,7 +12,7 @@
             <thead>
                 <tr>
                     <th><?= $this->Paginator->sort('id') ?></th>
-                    <th><?= $this->Paginator->sort('nome') ?></th>
+                    <th><?= $this->Paginator->sort('name') ?></th>
                     <th><?= $this->Paginator->sort('price') ?></th>
                     <th><?= $this->Paginator->sort('stock') ?></th>
                     <th><?= $this->Paginator->sort('image') ?></th>
@@ -25,7 +25,7 @@
                 <?php foreach ($plants as $plant): ?>
                 <tr>
                     <td><?= $this->Number->format($plant->id) ?></td>
-                    <td><?= h($plant->nome) ?></td>
+                    <td><?= h($plant->name) ?></td>
                     <td><?= $this->Number->format($plant->price) ?></td>
                     <td><?= $plant->stock === null ? '' : $this->Number->format($plant->stock) ?></td>
                     <td><?php if (!empty($plant->image)): ?>

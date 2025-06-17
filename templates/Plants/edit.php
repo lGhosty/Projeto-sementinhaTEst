@@ -22,7 +22,7 @@
             <fieldset>
                 <legend><?= __('Edit Plant') ?></legend>
                 <?php
-                    echo $this->Form->control('nome');
+                    echo $this->Form->control('name');
                     echo $this->Form->control('description');
                     echo $this->Form->control('price');
                     echo $this->Form->control('stock');
